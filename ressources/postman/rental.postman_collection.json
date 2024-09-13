@@ -61,7 +61,7 @@
 							"path": [
 								"api",
 								"auth",
-								"login"
+								"email"
 							]
 						}
 					},
