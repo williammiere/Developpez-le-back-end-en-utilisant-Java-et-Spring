@@ -1,0 +1,9 @@
+{
+    "java.home": "S:\\JDK23",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-23",
+            "path": "S:\\JDK23"
+        }
+    ]
+}
