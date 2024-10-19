@@ -15,11 +15,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SpringSecurityConfig {
 	
 	@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	    http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-         
-        return http.build();
-    }
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf(csrf -> csrf.disable())
+				.authorizeHttpRequests(requests -> requests.anyRequest().permitAll()).cors(cors -> cors.disable());
+		return http.build();
+	}
 
 	
 	@Bean
