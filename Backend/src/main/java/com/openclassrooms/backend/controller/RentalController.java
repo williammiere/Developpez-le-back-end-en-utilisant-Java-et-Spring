@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.backend.model.Rental;
+import com.openclassrooms.backend.model.RentalDTO;
+import com.openclassrooms.backend.model.modelMapper.RentalMapper;
 import com.openclassrooms.backend.service.RentalService;
+import com.openclassrooms.backend.service.UserService;
 
 
 @RestController
@@ -22,24 +25,30 @@ public class RentalController {
     @Autowired
     private RentalService rentalService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RentalMapper rentalMapper;
+
     @GetMapping("/rentals/{id}")
-    public ResponseEntity<Rental> getRental(@PathVariable int id) {
+    public ResponseEntity<RentalDTO> getRental(@PathVariable int id) {
         Optional<Rental> rental = rentalService.findById(id);
         if (rental.isPresent()) {
-            return ResponseEntity.ok(rental.get());
+            return ResponseEntity.ok(rentalMapper.toRentalDTO(rental.get()));
         }
         return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/rentals")
-    public ResponseEntity<Iterable<Rental>> getRentals() {
-        return ResponseEntity.ok(rentalService.findAll());
+    public ResponseEntity<Iterable<RentalDTO>> getRentals() {
+        return ResponseEntity.ok(rentalMapper.toListRentalDTO(rentalService.findAll()));
     }
 
     @PostMapping("/rentals")
-    public ResponseEntity<Rental> createRental(@RequestParam("owner_id") int ownerId, @RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("surface") float surface, @RequestParam("price") float price, @RequestParam("picture") MultipartFile picture) {
+    public ResponseEntity<RentalDTO> createRental(@RequestParam("owner_id") int ownerId, @RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("surface") float surface, @RequestParam("price") float price, @RequestParam("picture") MultipartFile picture) {
         Rental rental = new Rental();
-        rental.setOwner_id(ownerId);
+        rental.setOwner_id(userService.findById(ownerId).orElse(null));
         rental.setName(name);
         rental.setDescription(description);
         rental.setSurface(surface);
@@ -49,7 +58,7 @@ public class RentalController {
             rental.setPicture(rentalService.savePicture(picture));
         }
         
-        return ResponseEntity.ok(rentalService.save(rental));
+        return ResponseEntity.ok(rentalMapper.toRentalDTO(rentalService.save(rental)));
     }
     
     @PutMapping("/rentals/{id}")

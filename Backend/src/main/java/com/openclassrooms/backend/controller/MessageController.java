@@ -5,14 +5,15 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.backend.model.Message;
+import com.openclassrooms.backend.model.MessageDTO;
 import com.openclassrooms.backend.model.Rental;
 import com.openclassrooms.backend.model.User;
+import com.openclassrooms.backend.model.modelMapper.MessageMapper;
 import com.openclassrooms.backend.service.MessageService;
 import com.openclassrooms.backend.service.RentalService;
 import com.openclassrooms.backend.service.UserService;
@@ -29,13 +30,11 @@ public class MessageController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/messages")
-    public ResponseEntity<Iterable<Message>> getMessages() {
-        return ResponseEntity.ok(messageService.findAll());
-    }
+    @Autowired
+    private MessageMapper messageMapper;
 
     @PostMapping("/messages")
-    public ResponseEntity<Message> createMessage(@RequestParam("rental_id") int rentalId, @RequestParam("user_id") int userId, @RequestParam("message") String message) {
+    public ResponseEntity<MessageDTO> createMessage(@RequestParam("rental_id") int rentalId, @RequestParam("user_id") int userId, @RequestParam("message") String message) {
         
         Message newMessage = new Message();
 
@@ -53,6 +52,6 @@ public class MessageController {
         newMessage.setMessage(message);
         newMessage.setCreated_at(LocalDateTime.now());
 
-        return ResponseEntity.ok(messageService.saveMessage(newMessage));
+        return ResponseEntity.ok(messageMapper.toMessageDTO(messageService.saveMessage(newMessage)));
     }
 }

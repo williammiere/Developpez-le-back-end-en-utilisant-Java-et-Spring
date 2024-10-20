@@ -10,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -23,8 +25,9 @@ public class Rental {
 	@Column(name = "id")
 	private int id;
 
-	@Column(name = "owner_id")
-	private int owner_id;
+	@ManyToOne
+	@JoinColumn(name = "owner_id")
+	private User owner_id;
 
 	@Column(name = "name")
     private String name;

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.backend.model.User;
+import com.openclassrooms.backend.model.UserDTO;
+import com.openclassrooms.backend.model.modelMapper.UserMapper;
 import com.openclassrooms.backend.service.UserService;
 
 @RestController
@@ -21,31 +23,34 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUser(@PathVariable int id) {
+    public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
         Optional<User> user = userService.findById(id);
         if (user.isPresent()) {
             User returnUser = user.get();
             returnUser.setId(0);
             returnUser.setPassword(null);
             returnUser.setEmail(null);
-            return ResponseEntity.ok(returnUser);
+            return ResponseEntity.ok(userMapper.toUserDTO(returnUser));
         }
         return ResponseEntity.notFound().build();
     }
 
     @PostMapping("/auth/register")
-    public User register(@RequestParam("email") String email, @RequestParam("name") String name, @RequestParam("password") String password) {
+    public ResponseEntity<UserDTO> register(@RequestParam("email") String email, @RequestParam("name") String name, @RequestParam("password") String password) {
         User user = new User();
         user.setEmail(email);
         user.setName(name);
         user.setPassword(password);
         user.setCreated_at(LocalDateTime.now());
-        return userService.save(user);
+        return ResponseEntity.ok(userMapper.toUserDTO(userService.save(user)));
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<User> login(@RequestParam("login") String email, @RequestParam("password") String password) {
+    public ResponseEntity<UserDTO> login(@RequestParam("login") String email, @RequestParam("password") String password) {
         Optional<User> user = userService.findByEmail(email);
         if (user.isPresent() && user.get().getPassword().equals(password)) {
             return ResponseEntity.ok().build();
@@ -54,7 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/auth/me")
-    public User me(User user) {
-        return user;
+    public ResponseEntity<Optional<UserDTO>> me() {
+        return null;
     }
 }

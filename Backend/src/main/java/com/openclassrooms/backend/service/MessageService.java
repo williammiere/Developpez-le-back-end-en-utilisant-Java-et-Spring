@@ -16,8 +16,4 @@ public class MessageService {
     public Message saveMessage(Message message) {
         return messageRepository.save(message);
     }
-
-    public Iterable<Message> findAll() {
-        return messageRepository.findAll();
-    }
 }
