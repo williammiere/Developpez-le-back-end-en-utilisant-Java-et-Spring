@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import com.openclassrooms.backend.model.modelMapper.UserMapper;
 import com.openclassrooms.backend.service.UserService;
 
 @RestController
+@CrossOrigin("localhost:4200")
 public class UserController {
 
     @Autowired
@@ -27,6 +29,7 @@ public class UserController {
     private UserMapper userMapper;
 
     @GetMapping("/user/{id}")
+    @CrossOrigin("localhost:4200")
     public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
         Optional<User> user = userService.findById(id);
         if (user.isPresent()) {
@@ -40,6 +43,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/register")
+    @CrossOrigin("localhost:4200")
     public ResponseEntity<UserDTO> register(@RequestParam("email") String email, @RequestParam("name") String name, @RequestParam("password") String password) {
         User user = new User();
         user.setEmail(email);
@@ -50,6 +54,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/login")
+    @CrossOrigin("localhost:4200")
     public ResponseEntity<UserDTO> login(@RequestParam("login") String email, @RequestParam("password") String password) {
         Optional<User> user = userService.findByEmail(email);
         if (user.isPresent() && user.get().getPassword().equals(password)) {
@@ -59,6 +64,7 @@ public class UserController {
     }
 
     @GetMapping("/auth/me")
+    @CrossOrigin("localhost:4200")
     public ResponseEntity<Optional<UserDTO>> me() {
         return null;
     }
