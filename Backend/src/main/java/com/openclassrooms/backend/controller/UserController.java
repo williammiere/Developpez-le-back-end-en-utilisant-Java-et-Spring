@@ -53,7 +53,7 @@ public class UserController {
     public ResponseEntity<UserDTO> login(@RequestParam("login") String email, @RequestParam("password") String password) {
         Optional<User> user = userService.findByEmail(email);
         if (user.isPresent() && user.get().getPassword().equals(password)) {
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(userMapper.toUserDTO(user.get()));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
