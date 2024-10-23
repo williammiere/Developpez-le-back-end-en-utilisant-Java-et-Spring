@@ -65,7 +65,7 @@ public class UserController {
 
     @GetMapping("/auth/me")
     @CrossOrigin("http://localhost:4200")
-    public ResponseEntity<Optional<UserDTO>> me() {
-        return null;
+    public ResponseEntity<String> me() {
+        return ResponseEntity.ok("TEST");
     }
 }

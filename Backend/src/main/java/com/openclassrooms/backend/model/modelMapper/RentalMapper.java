@@ -1,6 +1,7 @@
 package com.openclassrooms.backend.model.modelMapper;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,18 +44,14 @@ public class RentalMapper {
         return rental;
     }
 
-    public Iterable<RentalDTO> toListRentalDTO(Iterable<Rental> rentals) {
-        if (rentals == null) {
+    public List<RentalDTO> toListRentalDTO(List<Rental> rentals) {
+        if (rentals == null || rentals.isEmpty()) {
             return null;
         }
         
-        Iterable<RentalDTO> res = new ArrayList<>();
-        
-        for (Rental rental : rentals) {
-            res.iterator().next().equals(toRentalDTO(rental));
-        }
-
-        return res;
+        return rentals.stream()
+                .map(this::toRentalDTO)
+                .collect(Collectors.toList());
     }
     
 }

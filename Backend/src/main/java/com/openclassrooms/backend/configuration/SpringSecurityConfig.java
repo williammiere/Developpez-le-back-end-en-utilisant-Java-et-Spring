@@ -64,7 +64,7 @@ public class SpringSecurityConfig{
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
                         // No auth needed on :
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/get/image/*").permitAll()
+                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/get/image/*", "/rentals", "/**").permitAll()
                         // Auth needed on :
                         .anyRequest().authenticated()
                 )

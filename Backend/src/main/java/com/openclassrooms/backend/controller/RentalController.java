@@ -1,5 +1,6 @@
 package com.openclassrooms.backend.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,8 @@ public class RentalController {
     }
 
     @GetMapping("/rentals")
-    public ResponseEntity<Iterable<RentalDTO>> getRentals() {
-        return ResponseEntity.ok(rentalMapper.toListRentalDTO(rentalService.findAll()));
+    public ResponseEntity<List<RentalDTO>> getRentals() {
+        return ResponseEntity.ok(rentalMapper.toListRentalDTO((List<Rental>) rentalService.findAll()));
     }
 
     @PostMapping("/rentals")
