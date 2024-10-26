@@ -15,7 +15,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import com.openclassrooms.backend.model.User;
 import com.openclassrooms.backend.service.JwtService;
+import com.openclassrooms.backend.service.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,11 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
-    public JwtAuthenticationFilter(JwtService jwtService, @Lazy UserDetailsService userDetailsService, HandlerExceptionResolver handlerExceptionResolver) {
+    
+    public JwtAuthenticationFilter(JwtService jwtService, @Lazy UserDetailsService userDetailsService, HandlerExceptionResolver handlerExceptionResolver, @Lazy UserService userService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
         this.handlerExceptionResolver = handlerExceptionResolver;
+        this.userService = userService;
     }
 
     @Override
@@ -42,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
         // Look for a bearer token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -53,9 +58,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // Retrieves the JWT.
-            final String jwt = authHeader.substring(7);
+            String jwt = authHeader.substring(7);
             // Retrieves the right username from the token.
-            final String userEmail = jwtService.extractUsername(jwt);
+            String userEmail = jwtService.extractUsername(jwt);
 
             // Retrieves the current authentication.
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -63,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // If username valid and not already authenticated :
             if (userEmail != null && authentication == null) {
                 // Gets user details.
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(userEmail).password(userService.findByEmail(userEmail).get().getPassword()).build();
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     // Creates the authentication token with the user details.

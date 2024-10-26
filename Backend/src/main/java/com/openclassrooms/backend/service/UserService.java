@@ -1,12 +1,11 @@
 package com.openclassrooms.backend.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,10 +27,14 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UserDetailsService userDetailsService;
+
     public String register(String email, String name, String password) {
 
         Optional<User> existingUser = userRepository.findByEmail(email);
-        if (existingUser.isPresent()) {
+
+        if (!existingUser.isEmpty()) {
             throw new IllegalArgumentException("Email already exists");
         }
 
@@ -43,7 +46,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        UserDetails userDetails = this.loadUserByEmail(email);
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(email).password(user.getPassword()).build();
 
         return jwtService.generateToken(userDetails);
     }
@@ -53,7 +56,7 @@ public class UserService {
         Optional<User> user = userRepository.findByEmail(email);
 
         if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
-            UserDetails userDetails = this.loadUserByEmail(email);
+            UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(email).password(user.get().getPassword()).build();
             return jwtService.generateToken(userDetails);
         } else {
             throw new IllegalArgumentException("Invalid credentials");
@@ -72,18 +75,12 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
-
-        Optional<User> user = findByEmail(email);
-
-        if (user.isPresent()) {
-            return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), new ArrayList<>());
-        } else {
-            throw new UsernameNotFoundException("Email " + email + " not found");
-        }
-    }
-
     public void deleteById(int id) {
         userRepository.deleteById(id);
-    }    
+    }
+
+    public boolean  deleteAll() {
+        userRepository.deleteAll();
+        return true;
+    }
 }

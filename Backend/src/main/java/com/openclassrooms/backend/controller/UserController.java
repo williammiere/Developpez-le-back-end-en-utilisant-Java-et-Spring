@@ -50,6 +50,7 @@ public class UserController {
         String jwtToken = userService.register(email, name, password);
         return ResponseEntity.ok(jwtToken);
         } catch (Exception e) {
+            System.out.println(e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
@@ -61,6 +62,7 @@ public class UserController {
         String jwtToken = userService.login(email, password);
         return ResponseEntity.ok(jwtToken);
         } catch (Exception e) {
+            System.out.println(e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
@@ -68,15 +70,26 @@ public class UserController {
     @GetMapping("/auth/me")
     @CrossOrigin("http://localhost:4200")
     public ResponseEntity<UserDTO> me() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.findByEmail(auth.getName()).orElse(null);
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 
-        if (user != null && auth.isAuthenticated()) {
-            UserDTO userDTO = userMapper.toUserDTO(user);
-            return ResponseEntity.ok(userDTO);
+		String email = authentication.getName();
+
+        Optional<User> user = userService.findByEmail(email);
+
+        if(user.isPresent()) {
+            return ResponseEntity.ok(userMapper.toUserDTO(user.get()));
         }
-
-        return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("/auth/deleteAll")
+    public String deleteAll() {
+        userService.deleteAll();
+        return "All users deleted";
+    }
+    
 }
