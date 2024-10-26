@@ -68,13 +68,15 @@ public class UserController {
     @GetMapping("/auth/me")
     @CrossOrigin("http://localhost:4200")
     public ResponseEntity<UserDTO> me() {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        User user = userService.findByEmail(email).orElse(null);
-        if (user != null) {
+        User user = userService.findByEmail(auth.getName()).orElse(null);
+
+        if (user != null && auth.isAuthenticated()) {
             UserDTO userDTO = userMapper.toUserDTO(user);
             return ResponseEntity.ok(userDTO);
         }
+
         return ResponseEntity.notFound().build();
     }
 }
