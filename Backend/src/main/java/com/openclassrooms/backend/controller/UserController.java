@@ -1,11 +1,13 @@
 package com.openclassrooms.backend.controller;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.openclassrooms.backend.model.User;
 import com.openclassrooms.backend.model.UserDTO;
 import com.openclassrooms.backend.model.modelMapper.UserMapper;
+import com.openclassrooms.backend.service.JwtService;
 import com.openclassrooms.backend.service.UserService;
 
 @RestController
@@ -27,6 +30,12 @@ public class UserController {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/user/{id}")
     @CrossOrigin("localhost:4200")
@@ -44,28 +53,36 @@ public class UserController {
 
     @PostMapping("/auth/register")
     @CrossOrigin("localhost:4200")
-    public ResponseEntity<UserDTO> register(@RequestParam("email") String email, @RequestParam("name") String name, @RequestParam("password") String password) {
-        User user = new User();
-        user.setEmail(email);
-        user.setName(name);
-        user.setPassword(password);
-        user.setCreated_at(LocalDateTime.now());
-        return ResponseEntity.ok(userMapper.toUserDTO(userService.save(user)));
+    public ResponseEntity<?> register(@RequestParam("email") String email, @RequestParam("name") String name, @RequestParam("password") String password) {
+        try{
+        String jwtToken = userService.register(email, name, password);
+        return ResponseEntity.ok(jwtToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @PostMapping("/auth/login")
     @CrossOrigin("localhost:4200")
-    public ResponseEntity<UserDTO> login(@RequestParam("login") String email, @RequestParam("password") String password) {
-        Optional<User> user = userService.findByEmail(email);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
-            return ResponseEntity.ok().build();
+    public ResponseEntity<?> login(@RequestParam("login") String email, @RequestParam("password") String password) {
+        try{
+        String jwtToken = userService.login(email, password);
+        return ResponseEntity.ok(jwtToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @GetMapping("/auth/me")
     @CrossOrigin("http://localhost:4200")
-    public ResponseEntity<String> me() {
-        return ResponseEntity.ok("TEST");
+    public ResponseEntity<UserDTO> me() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userService.findByEmail(email).orElse(null);
+        if (user != null) {
+            UserDTO userDTO = userMapper.toUserDTO(user);
+            return ResponseEntity.ok(userDTO);
+        }
+        return ResponseEntity.notFound().build();
     }
 }
