@@ -2,12 +2,12 @@ package com.openclassrooms.backend.configuration;
 
 import java.io.IOException;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.openclassrooms.backend.service.JwtService;
-import com.openclassrooms.backend.service.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,13 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserDetailsService userDetailsService;
 
     
-    public JwtAuthenticationFilter(JwtService jwtService, HandlerExceptionResolver handlerExceptionResolver, @Lazy UserService userService) {
+    public JwtAuthenticationFilter(JwtService jwtService, HandlerExceptionResolver handlerExceptionResolver, UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.handlerExceptionResolver = handlerExceptionResolver;
-        this.userService = userService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -57,14 +56,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = authHeader.substring(7);
             // Retrieves the right username from the token.
             String userEmail = jwtService.extractUsername(jwt);
+            System.out.println("jwt : "+ userEmail);
 
             // Retrieves the current authentication.
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("authentication : "+ authentication);
 
             // If username valid and not already authenticated :
             if (userEmail != null && authentication == null) {
                 // Gets user details.
-                UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(userEmail).password(userService.findByEmail(userEmail).get().getPassword()).build();
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     // Creates the authentication token with the user details.
