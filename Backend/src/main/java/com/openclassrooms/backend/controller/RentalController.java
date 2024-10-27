@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,10 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.backend.model.Rental;
 import com.openclassrooms.backend.model.RentalDTO;
+import com.openclassrooms.backend.model.User;
 import com.openclassrooms.backend.model.modelMapper.RentalMapper;
 import com.openclassrooms.backend.service.RentalService;
 import com.openclassrooms.backend.service.UserService;
-
 
 @RestController
 @CrossOrigin
@@ -50,26 +53,45 @@ public class RentalController {
 
     @PostMapping("/rentals")
     public ResponseEntity<RentalDTO> createRental(@RequestParam("owner_id") int ownerId, @RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("surface") float surface, @RequestParam("price") float price, @RequestParam("picture") MultipartFile picture) {
-        Rental rental = new Rental();
-        rental.setOwner_id(userService.findById(ownerId).orElse(null));
-        rental.setName(name);
-        rental.setDescription(description);
-        rental.setSurface(surface);
-        rental.setPrice(price);
 
-        if(!picture.isEmpty()) {
-            rental.setPicture(rentalService.savePicture(picture));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        
-        return ResponseEntity.ok(rentalMapper.toRentalDTO(rentalService.save(rental)));
+
+        String email = authentication.getName();
+
+        Optional<User> user = userService.findByEmail(email);
+
+        if (user.isPresent()) {
+
+            return ResponseEntity.ok(rentalService.createRental(ownerId, name, description, surface, price, picture));
+
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-    
+
     @PutMapping("/rentals/{id}")
-    public ResponseEntity<Boolean> updateRental(@RequestParam Rental rental, @PathVariable int id){ {
-        if(rentalService.updateRental(rental, id)){
-        return ResponseEntity.ok(true);
+    public ResponseEntity<Boolean> updateRental(@RequestParam RentalDTO rental, @PathVariable int id) {
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        return ResponseEntity.notFound().build();
+
+        String email = authentication.getName();
+
+        Optional<User> user = userService.findByEmail(email);
+
+        if (user.isPresent()) {
+
+            if (rentalService.updateRental(rentalMapper.toRental(rental), id)) {
+                return ResponseEntity.ok(true);
+            }
         }
+            return ResponseEntity.notFound().build();
+        
     }
 }

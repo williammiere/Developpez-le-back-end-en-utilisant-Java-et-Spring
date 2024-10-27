@@ -8,14 +8,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.openclassrooms.backend.model.User;
 import com.openclassrooms.backend.service.JwtService;
 import com.openclassrooms.backend.service.UserService;
 
@@ -30,13 +28,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
     private final UserService userService;
 
     
-    public JwtAuthenticationFilter(JwtService jwtService, @Lazy UserDetailsService userDetailsService, HandlerExceptionResolver handlerExceptionResolver, @Lazy UserService userService) {
+    public JwtAuthenticationFilter(JwtService jwtService, HandlerExceptionResolver handlerExceptionResolver, @Lazy UserService userService) {
         this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
         this.handlerExceptionResolver = handlerExceptionResolver;
         this.userService = userService;
     }
