@@ -20,9 +20,11 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 // OncePerRequestFilter -> run on every request.
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
 
@@ -56,11 +58,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = authHeader.substring(7);
             // Retrieves the right username from the token.
             String userEmail = jwtService.extractUsername(jwt);
-            System.out.println("jwt : "+ userEmail);
+            log.info("jwt : {}", userEmail);
 
             // Retrieves the current authentication.
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println("authentication : "+ authentication);
+            log.info("authentication : {}", authentication);
 
             // If username valid and not already authenticated :
             if (userEmail != null && authentication == null) {
