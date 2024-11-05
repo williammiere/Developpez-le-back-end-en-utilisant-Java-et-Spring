@@ -1,20 +1,20 @@
 package com.openclassrooms.backend.controller;
 
-import java.util.Optional;
-
+import com.openclassrooms.backend.model.MessageDTO;
+import com.openclassrooms.backend.model.User;
+import com.openclassrooms.backend.service.MessageService;
+import com.openclassrooms.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.openclassrooms.backend.model.MessageDTO;
-import com.openclassrooms.backend.model.User;
-import com.openclassrooms.backend.service.MessageService;
-import com.openclassrooms.backend.service.UserService;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
