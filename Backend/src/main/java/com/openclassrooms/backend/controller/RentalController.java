@@ -64,7 +64,7 @@ public class RentalController {
   
 
   @PostMapping("/rentals")
-  public ResponseEntity<RentalDTO> createRental(@Valid @ModelAttribute CreateRentalDTO createRentalDTO) {
+  public ResponseEntity<RentalDTO> createRental(@Valid @ModelAttribute CreateRentalDTO createRentalDTO) throws IOException {
 
     UserDTO user = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 

@@ -31,18 +31,16 @@ public class MessageService {
   private UserMapper userMapper;
 
   public Message createMessage(int rentalId, int userId, String message) {
-
-    Message newMessage = new Message();
     Rental rental = rentalMapper.toRental(rentalService.findById(rentalId));
     User user = userMapper.toUser(userService.findById(userId));
 
+    Message newMessage = new Message();
     newMessage.setRental_id(rental);
     newMessage.setUser_id(user);
     newMessage.setMessage(message);
     newMessage.setCreated_at(LocalDateTime.now());
 
     return messageRepository.save(newMessage);
-
   }
 
   public Message saveMessage(Message message) {

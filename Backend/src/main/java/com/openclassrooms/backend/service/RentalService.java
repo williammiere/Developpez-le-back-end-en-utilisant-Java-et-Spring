@@ -52,8 +52,7 @@ public class RentalService {
         return rentalMapper.toRentalDTO(rental);
     }
 
-    public RentalDTO createRental(int ownerId, String name, String description, float surface, float price, MultipartFile picture) {
-
+    public RentalDTO createRental(int ownerId, String name, String description, float surface, float price, MultipartFile picture) throws IOException {
         Rental rental = new Rental();
         rental.setOwner_id(userMapper.toUser(userService.findById(ownerId)));
         rental.setName(name);
@@ -65,44 +64,38 @@ public class RentalService {
         return rentalMapper.toRentalDTO(rentalRepository.save(rental));
     }
 
-    public String savePicture(MultipartFile picture) {
-
+    public String savePicture(MultipartFile picture) throws IOException {
         Path destination = Paths.get(picsUploadPath);
         String generatedName = UUID.randomUUID().toString() + "-" + picture.getOriginalFilename();
-        try {
 
-            Files.createDirectories(destination);
+        Files.createDirectories(destination);
 
-            Path targetLocation = destination.resolve(generatedName);
-            Files.copy(picture.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+        Path targetLocation = destination.resolve(generatedName);
+        Files.copy(picture.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            return "api/files/rentals/" + generatedName;
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store file " + generatedName, e);
-        }
-
+        return "api/files/rentals/" + generatedName;
     }
 
     public Resource getPicture(String fileName) throws MalformedURLException {
         Path filePath = Paths.get(picsUploadPath).resolve(fileName).normalize();
         Resource resource = new UrlResource(filePath.toUri());
-        return resource;
+        if (resource.exists() && resource.isReadable()) {
+            return resource;
+        } else {
+            throw new EntityNotFoundException("Picture not found");
+        }
     }
 
     public RentalDTO updateRental(int id, int owner_id, String name, String description, float surface, float price) {
+        
+        Rental rental = rentalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Rental not found"));
 
-        Rental rental = new Rental();
-        rental.setId(id);
-        rental.setOwner_id(rentalRepository.findById(id).get().getOwner_id());
+        rental.setOwner_id(userMapper.toUser(userService.findById(owner_id)));
         rental.setName(name);
         rental.setDescription(description);
         rental.setSurface(surface);
         rental.setPrice(price);
-        rental.setPicture(rentalRepository.findById(id).get().getPicture());
-        rental.setCreated_at(rentalRepository.findById(id).get().getCreated_at());
 
         return rentalMapper.toRentalDTO(rentalRepository.save(rental));
     }
-
 }

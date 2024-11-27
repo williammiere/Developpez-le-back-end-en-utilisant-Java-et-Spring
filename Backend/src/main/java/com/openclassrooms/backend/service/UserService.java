@@ -36,7 +36,6 @@ public class UserService {
   private UserMapper userMapper;
 
   public String register(String email, String name, String password) {
-
     User existingUser = userRepository.findByEmail(email);
 
     if (existingUser != null) {
@@ -51,21 +50,27 @@ public class UserService {
 
     userRepository.save(user);
 
-    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(email).password(user.getPassword()).build();
+    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+        .username(email)
+        .password(user.getPassword())
+        .build();
 
     return jwtService.generateToken(userDetails);
   }
 
   public String login(String email, String password) {
-
     User user = userRepository.findByEmail(email);
 
-    if (passwordEncoder.matches(password, user.getPassword())) {
-      UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(email).password(user.getPassword()).build();
-      return jwtService.generateToken(userDetails);
-    } else {
+    if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new IllegalArgumentException("Invalid credentials");
     }
+
+    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+        .username(email)
+        .password(user.getPassword())
+        .build();
+
+    return jwtService.generateToken(userDetails);
   }
 
   public UserDTO save(User user) {
@@ -73,16 +78,16 @@ public class UserService {
   }
 
   public UserDTO findById(int id) {
-
-    return userMapper.toUserDTO(userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found")));
+    User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
+    return userMapper.toUserDTO(user);
   }
 
   public UserDTO findByEmail(String email) {
-    return userMapper.toUserDTO(userRepository.findByEmail(email));
+    User user = userRepository.findByEmail(email);
+    return userMapper.toUserDTO(user);
   }
 
   public void deleteById(int id) {
     userRepository.deleteById(id);
   }
-
 }
