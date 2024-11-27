@@ -1,83 +1,76 @@
 package com.openclassrooms.backend.configuration;
 
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.openclassrooms.backend.service.CustomUserDetailService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 
 @Configuration
 @EnableWebSecurity
-public class SpringSecurityConfig{
+public class SpringSecurityConfig {
 
-	private final AuthenticationProvider authenticationProvider;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  @Autowired
+  private CustomUserDetailService customUserDetailService;
 
-    public SpringSecurityConfig(
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            AuthenticationProvider authenticationProvider
-    ) {
-        this.authenticationProvider = authenticationProvider;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
+  @Autowired
+  private JwtAuthenticationFilter authenticationFilter;
 
-	@Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        // The above is sets for all endpoints.
-        source.registerCorsConfiguration("/**",configuration);
-
-        return source;
-	
-	}
+  @Autowired
+  @Bean
+  public DaoAuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+    authProvider.setUserDetailsService(customUserDetailService);
+    authProvider.setPasswordEncoder(passwordEncoder());
+    return authProvider;
+  }
 
 
-	@Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Prevent cross-site request forgery.
-        http.csrf(AbstractHttpConfigurer::disable)
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    return authConfig.getAuthenticationManager();
+  }
 
-                .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(authorize -> authorize
-                        // No auth needed on :
-                        .requestMatchers("/auth/login", "/auth/register", "/auth/deleteAll","/swagger-ui/**", "/v3/api-docs/**", "/get/image/*", "/rentals", "/**").permitAll()
-                        // Auth needed on :
-                        .anyRequest().authenticated()
-                )
-                // Sets session management to stateless : no session cookie.
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                // Sets the auth provider...
-                .authenticationProvider(authenticationProvider)
-                // ... to filter requests based on our JWT implementation.
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-        return http.build();
-    }
-
-
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+      .cors(AbstractHttpConfigurer::disable)
+      .csrf(AbstractHttpConfigurer::disable)
+      .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      .authorizeHttpRequests(authorize -> authorize
+        // No auth needed on :
+        .requestMatchers("/api/auth/login",
+          "/api/auth/register",
+          "/swagger-ui/**",
+          "/v3/api-docs/**",
+          "/get/image/*",
+          "favicon.ico").permitAll()
+        .anyRequest().authenticated()
+      )
+      .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+      .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(
+          (request, response, exception) -> {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, exception.getMessage());
+          }));
+    return http.build();
+  }
 }

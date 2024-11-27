@@ -1,57 +1,49 @@
 package com.openclassrooms.backend.service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.backend.model.Message;
-import com.openclassrooms.backend.model.MessageDTO;
 import com.openclassrooms.backend.model.Rental;
 import com.openclassrooms.backend.model.User;
-import com.openclassrooms.backend.model.modelMapper.MessageMapper;
+import com.openclassrooms.backend.modelMapper.RentalMapper;
+import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.repository.MessageRepository;
-
 
 @Service
 public class MessageService {
-    
-    @Autowired
-    private MessageRepository messageRepository;
 
-    @Autowired
-    private RentalService rentalService;
+  @Autowired
+  private MessageRepository messageRepository;
 
-    @Autowired
-    private UserService userService;
+  @Autowired
+  private RentalService rentalService;
 
-    @Autowired
-    private MessageMapper messageMapper;
+  @Autowired
+  private UserService userService;
 
-    public MessageDTO createMessage(int rentalId, int userId, String message) {
-        
-        Message newMessage = new Message();
+  @Autowired
+  private RentalMapper rentalMapper;
 
-        Optional<Rental> rental = rentalService.findById(rentalId);
-        Optional<User> user = userService.findById(userId);
-        System.out.println(rental);
-        System.out.println(user);
+  @Autowired
+  private UserMapper userMapper;
 
-        if (!rental.isPresent() || !user.isPresent()) {
-            return null;
-        }
-        
-        newMessage.setRental_id(rental.get());
-        newMessage.setUser_id(user.get());
-        newMessage.setMessage(message);
-        newMessage.setCreated_at(LocalDateTime.now());
+  public Message createMessage(int rentalId, int userId, String message) {
+    Rental rental = rentalMapper.toRental(rentalService.findById(rentalId));
+    User user = userMapper.toUser(userService.findById(userId));
 
-        return messageMapper.toMessageDTO(messageRepository.save(newMessage));
+    Message newMessage = new Message();
+    newMessage.setRental_id(rental);
+    newMessage.setUser_id(user);
+    newMessage.setMessage(message);
+    newMessage.setCreated_at(LocalDateTime.now());
 
-    }
+    return messageRepository.save(newMessage);
+  }
 
-    public Message saveMessage(Message message) {
-        return messageRepository.save(message);
-    }
+  public Message saveMessage(Message message) {
+    return messageRepository.save(message);
+  }
 }

@@ -10,19 +10,20 @@
                 </div>
             </div>
             <mat-card-subtitle class="owner">
+                <h1>{{rental.id}}</h1>
                 <app-owner-info [ownerId]="rental.owner_id"></app-owner-info>
             </mat-card-subtitle>
         </mat-card-title>
         <mat-card-content>
             <div fxLayout="column" fxLayoutAlign="start center">
-                <img class="fit" [src]="rental.picture" alt="house picture">
+                <img class="fit" [src]="images[rental.id]" alt="house picture">
             </div>
             <div class="my2" fxLayout="row" fxLayoutAlign="space-between center">
                 <div fxLayout="center">
                     <mat-icon>
                         straighten
                     </mat-icon>
-                    <span class="ml1">{{ rental.surface}} m2</span>
+                    <span class="ml1">{{rental.surface}} m2</span>
                 </div>
                 <div fxLayout="center">
                     <mat-icon>

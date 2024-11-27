@@ -64,19 +64,18 @@ export class FormComponent implements OnInit {
   }
 
   private initForm(rental?: Rental): void {
-    console.log(rental);
-    console.log(this.sessionService.user!.id);
-    if( (rental !== undefined) && (rental?.owner_id !== this.sessionService.user!.id)) {
+    if(rental?.owner_id !== this.sessionService.user!.id && rental !== undefined) {
       this.router.navigate(['/rentals']);
-    }
-    this.rentalForm = this.fb.group({
-      name: [rental ? rental.name : '', [Validators.required]],
-      surface: [rental ? rental.surface : '', [Validators.required]],
-      price: [rental ? rental.price : '', [Validators.required]],
-      description: [rental ? rental.description : '', [Validators.required]],
-    });
-    if (!this.onUpdate) {
-      this.rentalForm.addControl('picture', this.fb.control('', [Validators.required]));
+    } else {
+      this.rentalForm = this.fb.group({
+        name: [rental ? rental.name : '', [Validators.required]],
+        surface: [rental ? rental.surface : '', [Validators.required]],
+        price: [rental ? rental.price : '', [Validators.required]],
+        description: [rental ? rental.description : '', [Validators.required]],
+      });
+      if (!this.onUpdate) {
+        this.rentalForm.addControl('picture', this.fb.control('', [Validators.required]));
+      }
     }
   }
 

@@ -1,7 +1,6 @@
 package com.openclassrooms.backend.service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,78 +8,86 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.openclassrooms.backend.dto.UserDTO;
 import com.openclassrooms.backend.model.User;
+import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.Data;
 
 @Data
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired
+  private UserRepository userRepository;
 
-    @Autowired
-    private JwtService jwtService;
+  @Autowired
+  private JwtService jwtService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+  @Autowired
+  private UserDetailsService userDetailsService;
 
-    public String register(String email, String name, String password) {
+  @Autowired
+  private UserMapper userMapper;
 
-        Optional<User> existingUser = userRepository.findByEmail(email);
+  public String register(String email, String name, String password) {
+    User existingUser = userRepository.findByEmail(email);
 
-        if (!existingUser.isEmpty()) {
-            throw new IllegalArgumentException("Email already exists");
-        }
-
-        User user = new User();
-        user.setEmail(email);
-        user.setName(name);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setCreated_at(LocalDateTime.now());
-
-        userRepository.save(user);
-
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(email).password(user.getPassword()).build();
-
-        return jwtService.generateToken(userDetails);
+    if (existingUser != null) {
+      throw new IllegalArgumentException("Email already exists");
     }
 
-    public String login(String email, String password) {
+    User user = new User();
+    user.setEmail(email);
+    user.setName(name);
+    user.setPassword(passwordEncoder.encode(password));
+    user.setCreated_at(LocalDateTime.now());
 
-        Optional<User> user = userRepository.findByEmail(email);
+    userRepository.save(user);
 
-        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
-            UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(email).password(user.get().getPassword()).build();
-            return jwtService.generateToken(userDetails);
-        } else {
-            throw new IllegalArgumentException("Invalid credentials");
-        }
+    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+        .username(email)
+        .password(user.getPassword())
+        .build();
+
+    return jwtService.generateToken(userDetails);
+  }
+
+  public String login(String email, String password) {
+    User user = userRepository.findByEmail(email);
+
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+      throw new IllegalArgumentException("Invalid credentials");
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
-    }
+    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+        .username(email)
+        .password(user.getPassword())
+        .build();
 
-    public Optional<User> findById(int id) {
-        return userRepository.findById(id);
-    }
+    return jwtService.generateToken(userDetails);
+  }
 
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+  public UserDTO save(User user) {
+    return userMapper.toUserDTO(userRepository.save(user));
+  }
 
-    public void deleteById(int id) {
-        userRepository.deleteById(id);
-    }
+  public UserDTO findById(int id) {
+    User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
+    return userMapper.toUserDTO(user);
+  }
 
-    public boolean  deleteAll() {
-        userRepository.deleteAll();
-        return true;
-    }
+  public UserDTO findByEmail(String email) {
+    User user = userRepository.findByEmail(email);
+    return userMapper.toUserDTO(user);
+  }
+
+  public void deleteById(int id) {
+    userRepository.deleteById(id);
+  }
 }

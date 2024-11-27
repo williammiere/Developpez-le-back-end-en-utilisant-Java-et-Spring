@@ -1,16 +1,43 @@
-# Estate
+# Rental App
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.
+This project was generated with:
+> [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.  
+
+> [Spring Boot](https://spring.io/projects/spring-boot) version 3.0.4.
+
+> [OpenJDK](https://openjdk.org/projects/jdk/19/) version 17.0.1.
+
+> [Spring Security](https://spring.io/projects/spring-security) version 6.0.0.
 
 ## Start the project
-
 Git clone:
 
-> git clone https://github.com/OpenClassrooms-Student-Center/P3-Full-Stack-portail-locataire
+> git clone https://github.com/Asediab/Developpez-le-back-end-en-utilisant-Java-et-Spring.git
+
+Install MySQL (MySQL Community Server - GPL):
+
+> Port: 3306
+
+> Create the username and the password 
+
+> Create a new schema named: test
+
+> Give rights for this username on the test schema
+
+
+Set the user's environment variables
+
+> Variable for MySQL password: `DATA_SOURSCE_PASS`
+
+> Variable for MySQL username: `DATA_SOURCE_USER`
+
+> Variable for the JWT secret: `JWT_SECRET`
 
 Go inside folder:
 
-> cd P3-Full-Stack-portail-locataire
+> cd Developpez-le-back-end-en-utilisant-Java-et-Spring
+
+### Front-end
 
 Install dependencies:
 
@@ -20,36 +47,32 @@ Launch Front-end:
 
 > npm run start;
 
+Open your browser at http://localhost:4200/
 
-## Ressources
+### Back-end
 
-### Mockoon env
+Go inside folder:
 
-Download Mockoon here: https://mockoon.com/download/
+> cd back-end
 
-After installing you could load the environement
+Install dependencies:
 
-> ressources/mockoon/rental-oc.json
+> mvn install
 
-directly inside Mockoon 
+Launch Back-end:
 
-> File > Open environmement
+> mvn spring-boot:run
 
-For launching the Mockoon server click on play bouton
-
-Mockoon documentation: https://mockoon.com/docs/latest/about/
-
-### Postman collection
-
-For Postman import the collection
-
-> ressources/postman/rental.postman_collection.json 
-
-by following the documentation: 
-
-https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman
+The data tables and test data will be created automatically using FlyWay.
 
 
-### MySQL
+If you want to change any configuration you can modify `back-end/src/main/resources/application.properties`
 
-SQL script for creating the schema is available `ressources/sql/script.sql`
+Endpoints are available at http://localhost:8080/
+
+Swagger is available at http://localhost:8080/swagger-ui/index.html#/
+
+## Test data set
+> Login: `user@user.com`
+
+> Pass: `test`
