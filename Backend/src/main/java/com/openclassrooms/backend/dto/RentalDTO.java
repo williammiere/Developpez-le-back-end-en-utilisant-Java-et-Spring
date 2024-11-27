@@ -1,8 +1,8 @@
-package com.openclassrooms.backend.model;
-
-import lombok.Data;
+package com.openclassrooms.backend.dto;
 
 import java.time.LocalDateTime;
+
+import lombok.Data;
 
 @Data
 public class RentalDTO {

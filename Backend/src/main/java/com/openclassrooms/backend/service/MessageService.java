@@ -1,17 +1,16 @@
 package com.openclassrooms.backend.service;
 
-import com.openclassrooms.backend.model.Message;
-import com.openclassrooms.backend.model.MessageDTO;
-import com.openclassrooms.backend.model.Rental;
-import com.openclassrooms.backend.model.User;
-import com.openclassrooms.backend.model.modelMapper.MessageMapper;
-import com.openclassrooms.backend.repository.MessageRepository;
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
+import com.openclassrooms.backend.model.Message;
+import com.openclassrooms.backend.model.Rental;
+import com.openclassrooms.backend.model.User;
+import com.openclassrooms.backend.modelMapper.RentalMapper;
+import com.openclassrooms.backend.modelMapper.UserMapper;
+import com.openclassrooms.backend.repository.MessageRepository;
 
 @Service
 public class MessageService {
@@ -26,27 +25,23 @@ public class MessageService {
   private UserService userService;
 
   @Autowired
-  private MessageMapper messageMapper;
+  private RentalMapper rentalMapper;
 
-  public MessageDTO createMessage(int rentalId, int userId, String message) {
+  @Autowired
+  private UserMapper userMapper;
+
+  public Message createMessage(int rentalId, int userId, String message) {
 
     Message newMessage = new Message();
+    Rental rental = rentalMapper.toRental(rentalService.findById(rentalId));
+    User user = userMapper.toUser(userService.findById(userId));
 
-    Optional<Rental> rental = rentalService.findById(rentalId);
-    Optional<User> user = userService.findById(userId);
-    System.out.println(rental);
-    System.out.println(user);
-
-    if (!rental.isPresent() || !user.isPresent()) {
-      return null;
-    }
-
-    newMessage.setRental_id(rental.get());
-    newMessage.setUser_id(user.get());
+    newMessage.setRental_id(rental);
+    newMessage.setUser_id(user);
     newMessage.setMessage(message);
     newMessage.setCreated_at(LocalDateTime.now());
 
-    return messageMapper.toMessageDTO(messageRepository.save(newMessage));
+    return messageRepository.save(newMessage);
 
   }
 

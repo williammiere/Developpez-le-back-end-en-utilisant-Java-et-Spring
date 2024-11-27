@@ -1,84 +1,108 @@
 package com.openclassrooms.backend.service;
 
-import com.openclassrooms.backend.model.Rental;
-import com.openclassrooms.backend.model.RentalDTO;
-import com.openclassrooms.backend.model.modelMapper.RentalMapper;
-import com.openclassrooms.backend.repository.RentalRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.openclassrooms.backend.dto.RentalDTO;
+import com.openclassrooms.backend.model.Rental;
+import com.openclassrooms.backend.modelMapper.RentalMapper;
+import com.openclassrooms.backend.modelMapper.UserMapper;
+import com.openclassrooms.backend.repository.RentalRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class RentalService {
 
-  @Autowired
-  private RentalRepository rentalRepository;
+    @Value("${pictures.upload.path}")
+    private String picsUploadPath;
 
-  @Autowired
-  private UserService userService;
+    @Autowired
+    private RentalRepository rentalRepository;
 
-  @Autowired
-  private RentalMapper rentalMapper;
+    @Autowired
+    private UserService userService;
 
-  public Iterable<Rental> findAll() {
-    return rentalRepository.findAll();
-  }
+    @Autowired
+    private RentalMapper rentalMapper;
 
-  public Optional<Rental> findById(int id) {
-    return rentalRepository.findById(id);
-  }
+    @Autowired
+    private UserMapper userMapper;
 
-  public RentalDTO createRental(int ownerId, String name, String description, float surface, float price, MultipartFile picture) {
-
-    Rental rental = new Rental();
-    rental.setOwner_id(userService.findById(ownerId).orElse(null));
-    rental.setName(name);
-    rental.setDescription(description);
-    rental.setSurface(surface);
-    rental.setPrice(price);
-
-    if (!picture.isEmpty()) {
-      rental.setPicture(this.savePicture(picture));
+    public RentalDTO[] findAll() {
+        Iterable<Rental> rentals = rentalRepository.findAll();
+        return rentalMapper.toListRentalDTO(StreamSupport.stream(rentals.spliterator(), false).toArray(Rental[]::new));
     }
 
-    return rentalMapper.toRentalDTO(rentalRepository.save(rental));
-  }
-
-  public Rental save(Rental rental) {
-    return rentalRepository.save(rental);
-  }
-
-  public String savePicture(MultipartFile picture) {
-
-    Path destination = Paths.get("src/images/");
-    String generatedName = picture.getOriginalFilename() + "-" + UUID.randomUUID().toString();
-    try {
-
-      Path targetLocation = destination.resolve(generatedName);
-      Files.copy(picture.getInputStream(), targetLocation);
-
-      return "http://localhost:8080/images/" + generatedName;
-
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to store file " + generatedName, e);
+    public RentalDTO findById(int id) {
+        Rental rental = rentalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Rental not found"));
+        return rentalMapper.toRentalDTO(rental);
     }
 
-  }
+    public RentalDTO createRental(int ownerId, String name, String description, float surface, float price, MultipartFile picture) {
 
-  public Boolean updateRental(Rental rental, int id) {
-    Optional<Rental> rentalData = rentalRepository.findById(id);
-    if (rentalData.isPresent()) {
-      rentalRepository.save(rental);
-      return true;
+        Rental rental = new Rental();
+        rental.setOwner_id(userMapper.toUser(userService.findById(ownerId)));
+        rental.setName(name);
+        rental.setDescription(description);
+        rental.setSurface(surface);
+        rental.setPrice(price);
+        rental.setPicture(this.savePicture(picture));
+
+        return rentalMapper.toRentalDTO(rentalRepository.save(rental));
     }
-    return false;
-  }
+
+    public String savePicture(MultipartFile picture) {
+
+        Path destination = Paths.get(picsUploadPath);
+        String generatedName = UUID.randomUUID().toString() + "-" + picture.getOriginalFilename();
+        try {
+
+            Files.createDirectories(destination);
+
+            Path targetLocation = destination.resolve(generatedName);
+            Files.copy(picture.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            return "api/files/rentals/" + generatedName;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file " + generatedName, e);
+        }
+
+    }
+
+    public Resource getPicture(String fileName) throws MalformedURLException {
+        Path filePath = Paths.get(picsUploadPath).resolve(fileName).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+        return resource;
+    }
+
+    public RentalDTO updateRental(int id, int owner_id, String name, String description, float surface, float price) {
+
+        Rental rental = new Rental();
+        rental.setId(id);
+        rental.setOwner_id(rentalRepository.findById(id).get().getOwner_id());
+        rental.setName(name);
+        rental.setDescription(description);
+        rental.setSurface(surface);
+        rental.setPrice(price);
+        rental.setPicture(rentalRepository.findById(id).get().getPicture());
+        rental.setCreated_at(rentalRepository.findById(id).get().getCreated_at());
+
+        return rentalMapper.toRentalDTO(rentalRepository.save(rental));
+    }
 
 }

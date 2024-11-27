@@ -8,6 +8,8 @@ import { MessageRequest } from '../../interfaces/api/messageRequest.interface';
 import { MessageResponse } from '../../interfaces/api/messageResponse.interface';
 import { MessagesService } from '../../services/messages.service';
 import { RentalsService } from '../../services/rentals.service';
+import { SafeUrl } from '@angular/platform-browser';
+import { ImageService } from '../../services/image.service';
 
 @Component({
   selector: 'app-detail',
@@ -18,6 +20,8 @@ export class DetailComponent implements OnInit {
 
   public messageForm!: FormGroup;
   public rental: Rental | undefined;
+  public images: { [key: number]: SafeUrl | null } = {};
+
 
   constructor(
     private route: ActivatedRoute,
@@ -25,7 +29,8 @@ export class DetailComponent implements OnInit {
     private messagesService: MessagesService,
     private rentalsService: RentalsService,
     private sessionService: SessionService,
-    private matSnackBar: MatSnackBar) {
+    private matSnackBar: MatSnackBar,
+    private imageService: ImageService) {
     this.initMessageForm();
   }
 
@@ -34,7 +39,9 @@ export class DetailComponent implements OnInit {
 
     this.rentalsService
       .detail(id)
-      .subscribe((rental: Rental) => this.rental = rental);
+      .subscribe((rental: Rental) => {this.rental = rental;
+        this.loadImage(Number(id), this.rental.picture);
+      });
   }
 
   public back() {
@@ -58,6 +65,18 @@ export class DetailComponent implements OnInit {
   private initMessageForm() {
     this.messageForm = this.fb.group({
       message: ['', [Validators.required, Validators.min(10)]],
+    });
+  }
+
+  loadImage(rentalId: number, picture: string): void {
+    this.imageService.loadImage(picture).subscribe({
+      next: (safeUrl) => {
+        this.images[rentalId] = safeUrl;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement de l\'image', error);
+        this.images[rentalId] = null;
+      }
     });
   }
 

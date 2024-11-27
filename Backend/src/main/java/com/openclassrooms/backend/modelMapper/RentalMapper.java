@@ -1,19 +1,22 @@
-package com.openclassrooms.backend.model.modelMapper;
+package com.openclassrooms.backend.modelMapper;
 
-import com.openclassrooms.backend.model.Rental;
-import com.openclassrooms.backend.model.RentalDTO;
-import com.openclassrooms.backend.service.UserService;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.openclassrooms.backend.dto.RentalDTO;
+import com.openclassrooms.backend.model.Rental;
+import com.openclassrooms.backend.service.UserService;
 
 @Component
 public class RentalMapper {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private UserMapper userMapper;
 
   public RentalDTO toRentalDTO(Rental rental) {
     RentalDTO rentalDTO = new RentalDTO();
@@ -32,25 +35,31 @@ public class RentalMapper {
   public Rental toRental(RentalDTO rentalDTO) {
     Rental rental = new Rental();
     rental.setId(rentalDTO.getId());
-    rental.setOwner_id(userService.findById(rentalDTO.getOwner_id()).orElse(null));
+    rental.setOwner_id(userMapper.toUser(userService.findById(rentalDTO.getOwner_id())));
     rental.setName(rentalDTO.getName());
     rental.setDescription(rentalDTO.getDescription());
     rental.setSurface(rentalDTO.getSurface());
     rental.setPrice(rentalDTO.getPrice());
-    rental.setPicture(rentalDTO.getPicture());
+    if(rentalDTO.getPicture() != null){
+      rental.setPicture(rentalDTO.getPicture());
+    }else{
+      rental.setPicture(rentalDTO.getPicture());
+    }
     rental.setCreated_at(rentalDTO.getCreated_at());
     rental.setUpdated_at(rentalDTO.getUpdated_at());
     return rental;
   }
 
-  public List<RentalDTO> toListRentalDTO(List<Rental> rentals) {
-    if (rentals == null || rentals.isEmpty()) {
+  public RentalDTO[] toListRentalDTO(Rental[] rentals) {
+    if (rentals == null) {
       return null;
     }
 
-    return rentals.stream()
+    RentalDTO[] rentalsDTO = Arrays.stream(rentals)
       .map(this::toRentalDTO)
-      .collect(Collectors.toList());
+      .toArray(RentalDTO[]::new);
+
+      return rentalsDTO;
   }
 
 }

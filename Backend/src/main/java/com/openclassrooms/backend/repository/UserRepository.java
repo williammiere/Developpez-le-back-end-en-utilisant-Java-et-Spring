@@ -1,14 +1,13 @@
 package com.openclassrooms.backend.repository;
 
-import com.openclassrooms.backend.model.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.openclassrooms.backend.model.User;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, Integer> {
 
-  Optional<User> findByEmail(String email);
+  User findByEmail(String email);
 
 }

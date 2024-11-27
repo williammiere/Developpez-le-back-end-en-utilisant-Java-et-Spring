@@ -1,7 +1,7 @@
-package com.openclassrooms.backend.model.modelMapper;
+package com.openclassrooms.backend.modelMapper;
 
+import com.openclassrooms.backend.dto.UserDTO;
 import com.openclassrooms.backend.model.User;
-import com.openclassrooms.backend.model.UserDTO;
 import org.springframework.stereotype.Component;
 
 @Component

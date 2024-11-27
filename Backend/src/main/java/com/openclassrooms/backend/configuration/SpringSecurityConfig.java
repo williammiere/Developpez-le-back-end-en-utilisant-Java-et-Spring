@@ -1,7 +1,5 @@
 package com.openclassrooms.backend.configuration;
 
-import com.openclassrooms.backend.service.CustomUserDetailService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.openclassrooms.backend.service.CustomUserDetailService;
+
+import jakarta.servlet.http.HttpServletResponse;
+
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +30,7 @@ public class SpringSecurityConfig {
   @Autowired
   private JwtAuthenticationFilter authenticationFilter;
 
-
+  @Autowired
   @Bean
   public DaoAuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -36,6 +38,7 @@ public class SpringSecurityConfig {
     authProvider.setPasswordEncoder(passwordEncoder());
     return authProvider;
   }
+
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
@@ -53,15 +56,14 @@ public class SpringSecurityConfig {
       .cors(AbstractHttpConfigurer::disable)
       .csrf(AbstractHttpConfigurer::disable)
       .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .authenticationProvider(authenticationProvider())
       .authorizeHttpRequests(authorize -> authorize
         // No auth needed on :
-        .requestMatchers("/auth/login",
-          "/auth/register",
-          "/auth/deleteAll",
+        .requestMatchers("/api/auth/login",
+          "/api/auth/register",
           "/swagger-ui/**",
           "/v3/api-docs/**",
-          "/get/image/*").permitAll()
+          "/get/image/*",
+          "favicon.ico").permitAll()
         .anyRequest().authenticated()
       )
       .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)

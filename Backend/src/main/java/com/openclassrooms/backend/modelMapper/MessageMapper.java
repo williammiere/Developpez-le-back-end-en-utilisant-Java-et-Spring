@@ -1,11 +1,12 @@
-package com.openclassrooms.backend.model.modelMapper;
+package com.openclassrooms.backend.modelMapper;
 
-import com.openclassrooms.backend.model.Message;
-import com.openclassrooms.backend.model.MessageDTO;
-import com.openclassrooms.backend.service.RentalService;
-import com.openclassrooms.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.openclassrooms.backend.dto.MessageDTO;
+import com.openclassrooms.backend.model.Message;
+import com.openclassrooms.backend.service.RentalService;
+import com.openclassrooms.backend.service.UserService;
 
 @Component
 public class MessageMapper {
@@ -15,6 +16,12 @@ public class MessageMapper {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private RentalMapper rentalMapper;
+
+  @Autowired
+  private UserMapper userMapper;
 
   public MessageDTO toMessageDTO(Message message) {
     MessageDTO messageDTO = new MessageDTO();
@@ -30,8 +37,8 @@ public class MessageMapper {
   public Message toMessage(MessageDTO messageDTO) {
     Message message = new Message();
     message.setId(messageDTO.getId());
-    message.setRental_id(rentalService.findById(messageDTO.getRental_id()).orElse(null));
-    message.setUser_id(userService.findById(messageDTO.getUser_id()).orElse(null));
+    message.setRental_id(rentalMapper.toRental(rentalService.findById(messageDTO.getRental_id())));
+    message.setUser_id(userMapper.toUser(userService.findById(messageDTO.getUser_id())));
     message.setMessage(messageDTO.getMessage());
     message.setCreated_at(messageDTO.getCreated_at());
     message.setUpdated_at(messageDTO.getUpdated_at());

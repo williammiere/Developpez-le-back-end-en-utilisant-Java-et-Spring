@@ -1,16 +1,20 @@
 package com.openclassrooms.backend.service;
 
-import com.openclassrooms.backend.model.User;
-import com.openclassrooms.backend.repository.UserRepository;
-import lombok.Data;
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import com.openclassrooms.backend.dto.UserDTO;
+import com.openclassrooms.backend.model.User;
+import com.openclassrooms.backend.modelMapper.UserMapper;
+import com.openclassrooms.backend.repository.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.Data;
 
 @Data
 @Service
@@ -28,11 +32,14 @@ public class UserService {
   @Autowired
   private UserDetailsService userDetailsService;
 
+  @Autowired
+  private UserMapper userMapper;
+
   public String register(String email, String name, String password) {
 
-    Optional<User> existingUser = userRepository.findByEmail(email);
+    User existingUser = userRepository.findByEmail(email);
 
-    if (!existingUser.isEmpty()) {
+    if (existingUser != null) {
       throw new IllegalArgumentException("Email already exists");
     }
 
@@ -51,34 +58,31 @@ public class UserService {
 
   public String login(String email, String password) {
 
-    Optional<User> user = userRepository.findByEmail(email);
+    User user = userRepository.findByEmail(email);
 
-    if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
-      UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(email).password(user.get().getPassword()).build();
+    if (passwordEncoder.matches(password, user.getPassword())) {
+      UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(email).password(user.getPassword()).build();
       return jwtService.generateToken(userDetails);
     } else {
       throw new IllegalArgumentException("Invalid credentials");
     }
   }
 
-  public User save(User user) {
-    return userRepository.save(user);
+  public UserDTO save(User user) {
+    return userMapper.toUserDTO(userRepository.save(user));
   }
 
-  public Optional<User> findById(int id) {
-    return userRepository.findById(id);
+  public UserDTO findById(int id) {
+
+    return userMapper.toUserDTO(userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found")));
   }
 
-  public Optional<User> findByEmail(String email) {
-    return userRepository.findByEmail(email);
+  public UserDTO findByEmail(String email) {
+    return userMapper.toUserDTO(userRepository.findByEmail(email));
   }
 
   public void deleteById(int id) {
     userRepository.deleteById(id);
   }
 
-  public boolean deleteAll() {
-    userRepository.deleteAll();
-    return true;
-  }
 }
