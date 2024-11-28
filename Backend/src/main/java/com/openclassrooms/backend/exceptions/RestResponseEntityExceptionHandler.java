@@ -1,5 +1,7 @@
 package com.openclassrooms.backend.exceptions;
 
+import java.net.MalformedURLException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,5 +44,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     protected ResponseEntity<Object> handleNullPointerException(NullPointerException ex, WebRequest request) {
         String bodyOfResponse = "Null pointer exception";
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
+    @ExceptionHandler(MalformedURLException.class)
+    protected ResponseEntity<Object> handleMalformedURLException(MalformedURLException ex, WebRequest request) {
+        String bodyOfResponse = "Malformed URL";
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 }
