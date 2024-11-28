@@ -27,11 +27,13 @@ Install MySQL (MySQL Community Server - GPL):
 
 Set the user's environment variables
 
-> Variable for MySQL password: `DATA_SOURSCE_PASS`
+> Variable for MySQL datasource url: `URL`
 
-> Variable for MySQL username: `DATA_SOURCE_USER`
+> Variable for MySQL password: `PASSWORD`
 
-> Variable for the JWT secret: `JWT_SECRET`
+> Variable for MySQL username: `USERNAME`
+
+> Variable for the JWT secret: `SECRET`
 
 Go inside folder:
 
@@ -73,6 +75,6 @@ Endpoints are available at http://localhost:8080/
 Swagger is available at http://localhost:8080/swagger-ui/index.html#/
 
 ## Test data set
-> Login: `user@user.com`
+> Login: `test@test.com`
 
-> Pass: `test`
+> Pass: `test!31`
