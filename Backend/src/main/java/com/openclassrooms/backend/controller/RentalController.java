@@ -21,6 +21,8 @@ import com.openclassrooms.backend.dto.RentalDTO;
 import com.openclassrooms.backend.dto.RentalsResponseDTO;
 import com.openclassrooms.backend.dto.UpdateRentalDTO;
 import com.openclassrooms.backend.dto.UserDTO;
+import com.openclassrooms.backend.modelMapper.RentalMapper;
+import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.service.RentalService;
 import com.openclassrooms.backend.service.UserService;
 
@@ -37,10 +39,16 @@ public class RentalController {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private RentalMapper rentalMapper;
+
+  @Autowired
+  private UserMapper userMapper;
+
   @GetMapping("/rentals/{id}")
   public ResponseEntity<RentalDTO> getRental(@PathVariable int id) {
 
-    RentalDTO rentalDTO = rentalService.findById(id);
+    RentalDTO rentalDTO = rentalMapper.toRentalDTO(rentalService.findById(id));
     return ResponseEntity.ok(rentalDTO);
   }
 
@@ -48,7 +56,7 @@ public class RentalController {
   public ResponseEntity<RentalsResponseDTO> getRentals() {
 
     RentalsResponseDTO rentalsResponseDTO = new RentalsResponseDTO();
-    RentalDTO[] rentals = rentalService.findAll();
+    RentalDTO[] rentals = rentalMapper.toListRentalDTO(rentalService.findAll());
     rentalsResponseDTO.setRentals(rentals);
     return ResponseEntity.ok(rentalsResponseDTO);
   }
@@ -66,9 +74,9 @@ public class RentalController {
   @PostMapping("/rentals")
   public ResponseEntity<RentalDTO> createRental(@Valid @ModelAttribute CreateRentalDTO createRentalDTO) throws IOException {
 
-    UserDTO user = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+    UserDTO user = userMapper.toUserDTO(userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()));
 
-    RentalDTO rental = rentalService.createRental(user.getId(), createRentalDTO.getName(), createRentalDTO.getDescription(), createRentalDTO.getSurface(), createRentalDTO.getPrice(), createRentalDTO.getPicture());
+    RentalDTO rental = rentalMapper.toRentalDTO(rentalService.createRental(user.getId(), createRentalDTO.getName(), createRentalDTO.getDescription(), createRentalDTO.getSurface(), createRentalDTO.getPrice(), createRentalDTO.getPicture()));
     return ResponseEntity.ok(rental);
 
   }
@@ -76,9 +84,9 @@ public class RentalController {
   @PutMapping("/rentals/{id}")
   public ResponseEntity<RentalDTO> updateRental(@PathVariable int id, @Valid @ModelAttribute UpdateRentalDTO updateRentalDTO) {
 
-    UserDTO user = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+    UserDTO user = userMapper.toUserDTO(userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()));
 
-    RentalDTO rental = rentalService.updateRental(id, user.getId(), updateRentalDTO.getName(), updateRentalDTO.getDescription(), updateRentalDTO.getSurface(), updateRentalDTO.getPrice());
+    RentalDTO rental = rentalMapper.toRentalDTO(rentalService.updateRental(id, user.getId(), updateRentalDTO.getName(), updateRentalDTO.getDescription(), updateRentalDTO.getSurface(), updateRentalDTO.getPrice()));
 
     return ResponseEntity.ok(rental);
 

@@ -8,9 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.openclassrooms.backend.dto.UserDTO;
 import com.openclassrooms.backend.model.User;
-import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -31,9 +29,6 @@ public class UserService {
 
   @Autowired
   private UserDetailsService userDetailsService;
-
-  @Autowired
-  private UserMapper userMapper;
 
   public String register(String email, String name, String password) {
     User existingUser = userRepository.findByEmail(email);
@@ -73,18 +68,18 @@ public class UserService {
     return jwtService.generateToken(userDetails);
   }
 
-  public UserDTO save(User user) {
-    return userMapper.toUserDTO(userRepository.save(user));
+  public User save(User user) {
+    return userRepository.save(user);
   }
 
-  public UserDTO findById(int id) {
+  public User findById(int id) {
     User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
-    return userMapper.toUserDTO(user);
+    return user;
   }
 
-  public UserDTO findByEmail(String email) {
+  public User findByEmail(String email) {
     User user = userRepository.findByEmail(email);
-    return userMapper.toUserDTO(user);
+    return user;
   }
 
   public void deleteById(int id) {

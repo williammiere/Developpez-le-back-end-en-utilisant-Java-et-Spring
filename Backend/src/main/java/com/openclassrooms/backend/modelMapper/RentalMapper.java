@@ -15,9 +15,6 @@ public class RentalMapper {
   @Autowired
   private UserService userService;
 
-  @Autowired
-  private UserMapper userMapper;
-
   public RentalDTO toRentalDTO(Rental rental) {
     RentalDTO rentalDTO = new RentalDTO();
     rentalDTO.setId(rental.getId());
@@ -35,7 +32,7 @@ public class RentalMapper {
   public Rental toRental(RentalDTO rentalDTO) {
     Rental rental = new Rental();
     rental.setId(rentalDTO.getId());
-    rental.setOwner_id(userMapper.toUser(userService.findById(rentalDTO.getOwner_id())));
+    rental.setOwner_id(userService.findById(rentalDTO.getOwner_id()));
     rental.setName(rentalDTO.getName());
     rental.setDescription(rentalDTO.getDescription());
     rental.setSurface(rentalDTO.getSurface());
@@ -51,10 +48,6 @@ public class RentalMapper {
   }
 
   public RentalDTO[] toListRentalDTO(Rental[] rentals) {
-    if (rentals == null) {
-      return null;
-    }
-
     RentalDTO[] rentalsDTO = Arrays.stream(rentals)
       .map(this::toRentalDTO)
       .toArray(RentalDTO[]::new);

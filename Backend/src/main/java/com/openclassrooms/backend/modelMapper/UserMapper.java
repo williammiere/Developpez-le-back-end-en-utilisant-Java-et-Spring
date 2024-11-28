@@ -1,8 +1,9 @@
 package com.openclassrooms.backend.modelMapper;
 
+import org.springframework.stereotype.Component;
+
 import com.openclassrooms.backend.dto.UserDTO;
 import com.openclassrooms.backend.model.User;
-import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {

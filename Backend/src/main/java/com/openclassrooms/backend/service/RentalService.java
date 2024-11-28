@@ -15,11 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.openclassrooms.backend.dto.RentalDTO;
 import com.openclassrooms.backend.model.Rental;
-import com.openclassrooms.backend.modelMapper.RentalMapper;
-import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.repository.RentalRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -36,32 +32,26 @@ public class RentalService {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private RentalMapper rentalMapper;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    public RentalDTO[] findAll() {
+    public Rental[] findAll() {
         Iterable<Rental> rentals = rentalRepository.findAll();
-        return rentalMapper.toListRentalDTO(StreamSupport.stream(rentals.spliterator(), false).toArray(Rental[]::new));
+        return StreamSupport.stream(rentals.spliterator(), false).toArray(Rental[]::new);
     }
 
-    public RentalDTO findById(int id) {
+    public Rental findById(int id) {
         Rental rental = rentalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Rental not found"));
-        return rentalMapper.toRentalDTO(rental);
+        return rental;
     }
 
-    public RentalDTO createRental(int ownerId, String name, String description, float surface, float price, MultipartFile picture) throws IOException {
+    public Rental createRental(int ownerId, String name, String description, float surface, float price, MultipartFile picture) throws IOException {
         Rental rental = new Rental();
-        rental.setOwner_id(userMapper.toUser(userService.findById(ownerId)));
+        rental.setOwner_id(userService.findById(ownerId));
         rental.setName(name);
         rental.setDescription(description);
         rental.setSurface(surface);
         rental.setPrice(price);
         rental.setPicture(this.savePicture(picture));
 
-        return rentalMapper.toRentalDTO(rentalRepository.save(rental));
+        return rentalRepository.save(rental);
     }
 
     public String savePicture(MultipartFile picture) throws IOException {
@@ -86,16 +76,16 @@ public class RentalService {
         }
     }
 
-    public RentalDTO updateRental(int id, int owner_id, String name, String description, float surface, float price) {
+    public Rental updateRental(int id, int owner_id, String name, String description, float surface, float price) {
         
         Rental rental = rentalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Rental not found"));
 
-        rental.setOwner_id(userMapper.toUser(userService.findById(owner_id)));
+        rental.setOwner_id(userService.findById(owner_id));
         rental.setName(name);
         rental.setDescription(description);
         rental.setSurface(surface);
         rental.setPrice(price);
 
-        return rentalMapper.toRentalDTO(rentalRepository.save(rental));
+        return rentalRepository.save(rental);
     }
 }

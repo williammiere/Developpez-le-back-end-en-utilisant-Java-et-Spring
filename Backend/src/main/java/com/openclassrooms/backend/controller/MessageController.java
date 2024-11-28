@@ -12,6 +12,7 @@ import com.openclassrooms.backend.dto.CreateMessageDTO;
 import com.openclassrooms.backend.dto.MessageResponseDTO;
 import com.openclassrooms.backend.dto.UserDTO;
 import com.openclassrooms.backend.model.Message;
+import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.service.MessageService;
 import com.openclassrooms.backend.service.UserService;
 
@@ -28,12 +29,15 @@ public class MessageController {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private UserMapper userMapper;
+
   @PostMapping("/messages")
   public ResponseEntity<MessageResponseDTO> createMessage(@Valid @RequestBody CreateMessageDTO createMessageDTO) {
 
     String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-    UserDTO user = userService.findByEmail(email);
+    UserDTO user = userMapper.toUserDTO(userService.findByEmail(email));
 
     Message message = messageService.createMessage(createMessageDTO.getRental_id(), user.getId(), createMessageDTO.getMessage());
 

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.openclassrooms.backend.dto.LoginRequestDTO;
 import com.openclassrooms.backend.dto.SingupRequestDTO;
 import com.openclassrooms.backend.dto.TokenResponseDTO;
+import com.openclassrooms.backend.dto.UserAuthResponseDTO;
 import com.openclassrooms.backend.dto.UserDTO;
+import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.service.UserService;
 
 import jakarta.validation.Valid;
@@ -25,14 +27,22 @@ public class UserController {
   @Autowired
   private UserService userService;
 
-  @GetMapping("/user/{id}")
-  public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
-    UserDTO user = userService.findById(id);
+  @Autowired
+  private UserMapper userMapper;
 
-    user.setId(0);
-    user.setPassword(null);
-    user.setEmail(null);
-      return ResponseEntity.ok(user);
+  @GetMapping("/user/{id}")
+  public ResponseEntity<UserAuthResponseDTO> getUser(@PathVariable int id) {
+
+    UserDTO user = userMapper.toUserDTO(userService.findById(id));
+
+    UserAuthResponseDTO userResponse = new UserAuthResponseDTO();
+    userResponse.setId(user.getId());
+    userResponse.setEmail(user.getEmail());
+    userResponse.setName(user.getName());
+    userResponse.setCreated_at(user.getCreated_at());
+    userResponse.setUpdated_at(user.getUpdated_at());
+    
+      return ResponseEntity.ok(userResponse);
   }
 
   @PostMapping("/auth/register")
@@ -56,11 +66,18 @@ public class UserController {
   }
 
   @GetMapping("/auth/me")
-  public ResponseEntity<UserDTO> me() {
+  public ResponseEntity<UserAuthResponseDTO> me() {
     String email = SecurityContextHolder.getContext().getAuthentication().getName();
-    UserDTO user = userService.findByEmail(email);
+    UserDTO user = userMapper.toUserDTO(userService.findByEmail(email));
 
-    return ResponseEntity.ok(user);
+    UserAuthResponseDTO userResponse = new UserAuthResponseDTO();
+    userResponse.setId(user.getId());
+    userResponse.setEmail(email);
+    userResponse.setName(user.getName());
+    userResponse.setCreated_at(user.getCreated_at());
+    userResponse.setUpdated_at(user.getUpdated_at());
+
+    return ResponseEntity.ok(userResponse);
 
   }
 

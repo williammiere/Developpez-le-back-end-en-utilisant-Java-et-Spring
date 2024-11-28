@@ -16,13 +16,7 @@ public class MessageMapper {
 
   @Autowired
   private UserService userService;
-
-  @Autowired
-  private RentalMapper rentalMapper;
-
-  @Autowired
-  private UserMapper userMapper;
-
+  
   public MessageDTO toMessageDTO(Message message) {
     MessageDTO messageDTO = new MessageDTO();
     messageDTO.setId(message.getId());
@@ -37,8 +31,8 @@ public class MessageMapper {
   public Message toMessage(MessageDTO messageDTO) {
     Message message = new Message();
     message.setId(messageDTO.getId());
-    message.setRental_id(rentalMapper.toRental(rentalService.findById(messageDTO.getRental_id())));
-    message.setUser_id(userMapper.toUser(userService.findById(messageDTO.getUser_id())));
+    message.setRental_id(rentalService.findById(messageDTO.getRental_id()));
+    message.setUser_id(userService.findById(messageDTO.getUser_id()));
     message.setMessage(messageDTO.getMessage());
     message.setCreated_at(messageDTO.getCreated_at());
     message.setUpdated_at(messageDTO.getUpdated_at());

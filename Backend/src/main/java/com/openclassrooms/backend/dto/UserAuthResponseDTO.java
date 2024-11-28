@@ -5,10 +5,9 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class UserDTO {
+public class UserAuthResponseDTO {
   private int id;
   private String name;
-  private String password;
   private String email;
   private LocalDateTime created_at;
   private LocalDateTime updated_at;
