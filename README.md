@@ -1,18 +1,19 @@
-# Rental App
+# Châtop APP
 
-This project was generated with:
-> [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.  
+## Prerequiste:
 
-> [Spring Boot](https://spring.io/projects/spring-boot) version 3.0.4.
+Java 17
 
-> [OpenJDK](https://openjdk.org/projects/jdk/19/) version 17.0.1.
+Spring Boot
 
-> [Spring Security](https://spring.io/projects/spring-security) version 6.0.0.
+MySQL database (MySQL 8.4 Configurator can be used to create a local database, for exemple)
+
+NPM
 
 ## Start the project
 Git clone:
 
-> git clone https://github.com/Asediab/Developpez-le-back-end-en-utilisant-Java-et-Spring.git
+> git clone https://github.com/williammiere/Developpez-le-back-end-en-utilisant-Java-et-Spring.git
 
 Install MySQL (MySQL Community Server - GPL):
 
@@ -25,7 +26,7 @@ Install MySQL (MySQL Community Server - GPL):
 > Give rights for this username on the test schema
 
 
-Set the user's environment variables
+Set the user's environment variables in a .env file at the project's root:
 
 > Variable for MySQL datasource url: `URL`
 
