@@ -64,18 +64,16 @@ Install dependencies:
 
 Launch Back-end:
 
-> mvn spring-boot:run
-
-The data tables and test data will be created automatically using FlyWay.
+> mvn spring-boot:run or use Spring Boot Dashboard extension for VS Code
 
 
-If you want to change any configuration you can modify `back-end/src/main/resources/application.properties`
+If you want to change any configuration you can modify `Backend/src/main/resources/application.properties`
 
 Endpoints are available at http://localhost:8080/
 
 Swagger is available at http://localhost:8080/swagger-ui/index.html#/
 
 ## Test data set
-> Login: `test@test.com`
-
+> Email: `test@test.com`
+> Name: `test`
 > Pass: `test!31`
