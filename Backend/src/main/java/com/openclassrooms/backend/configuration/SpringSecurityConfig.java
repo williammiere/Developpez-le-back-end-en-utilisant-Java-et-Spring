@@ -31,16 +31,16 @@ public class SpringSecurityConfig {
   private JwtAuthenticationFilter authenticationFilter;
 
   @Autowired
-  @Bean
-  public DaoAuthenticationProvider authenticationProvider() {
+  @Bean // Authentication provider that authenticates a user using customUserDetailsService
+  public DaoAuthenticationProvider authenticationProvider() { 
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
     authProvider.setUserDetailsService(customUserDetailService);
     authProvider.setPasswordEncoder(passwordEncoder());
     return authProvider;
   }
 
-
-  @Bean
+ // The @Bean annotation says that Spring will manage the object and that it can be injected into other classes
+  @Bean // Authentication manager that returns an authentication manager
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
     return authConfig.getAuthenticationManager();
   }
@@ -62,7 +62,6 @@ public class SpringSecurityConfig {
           "/api/auth/register",
           "/swagger-ui/**",
           "/v3/api-docs/**",
-          "/get/image/*",
           "favicon.ico").permitAll()
         .anyRequest().authenticated()
       )

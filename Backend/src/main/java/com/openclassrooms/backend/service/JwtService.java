@@ -18,7 +18,7 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
-  // @Value annotation => Go get from the application.property file.
+
   @Value("${security.jwt.secret-key}")
   private String secretKey;
 

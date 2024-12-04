@@ -18,6 +18,9 @@ import com.openclassrooms.backend.dto.UserDTO;
 import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 @RestController
@@ -30,6 +33,11 @@ public class UserController {
   @Autowired
   private UserMapper userMapper;
 
+  @Operation(summary = "Get user by id")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "User found"),
+          @ApiResponse(responseCode = "404", description = "User not found")
+  })
   @GetMapping("/user/{id}")
   public ResponseEntity<UserAuthResponseDTO> getUser(@PathVariable int id) {
 
@@ -45,6 +53,11 @@ public class UserController {
       return ResponseEntity.ok(userResponse);
   }
 
+  @Operation(summary = "Register a new user", description = "Register a new user with email, name and password and send back a JWT token")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "User registered"),
+          @ApiResponse(responseCode = "400", description = "Bad request")
+  })
   @PostMapping("/auth/register")
   public ResponseEntity<TokenResponseDTO> register(
           @Valid @RequestBody SingupRequestDTO singupRequestDTO) {
@@ -55,6 +68,11 @@ public class UserController {
       return ResponseEntity.ok(tokenResponseDTO);
   }
 
+  @Operation(summary = "Login a user", description = "Login a user with email and password and send back a JWT token")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "User logged in"),
+          @ApiResponse(responseCode = "400", description = "Bad request")
+  })
   @PostMapping("/auth/login")
   public ResponseEntity<?> login(
           @Valid @RequestBody LoginRequestDTO loginRequestDTO) {
@@ -65,6 +83,11 @@ public class UserController {
       return ResponseEntity.ok(tokenResponseDTO);
   }
 
+  @Operation(summary = "Get the current user")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "User found"),
+          @ApiResponse(responseCode = "404", description = "User not found")
+  })
   @GetMapping("/auth/me")
   public ResponseEntity<UserAuthResponseDTO> me() {
     String email = SecurityContextHolder.getContext().getAuthentication().getName();

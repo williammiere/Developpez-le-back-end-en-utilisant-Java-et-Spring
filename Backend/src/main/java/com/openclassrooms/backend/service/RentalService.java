@@ -15,6 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.openclassrooms.backend.model.Rental;
 import com.openclassrooms.backend.repository.RentalRepository;
 
@@ -79,6 +80,9 @@ public class RentalService {
     public Rental updateRental(int id, int owner_id, String name, String description, float surface, float price) {
         
         Rental rental = rentalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Rental not found"));
+        if (rental.getOwner_id().getId() != owner_id) {
+            throw new IllegalArgumentException("You are not the owner of this rental");
+        }
 
         rental.setOwner_id(userService.findById(owner_id));
         rental.setName(name);

@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-// OncePerRequestFilter -> run on every request.
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

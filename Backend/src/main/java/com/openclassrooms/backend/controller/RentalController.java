@@ -26,6 +26,9 @@ import com.openclassrooms.backend.modelMapper.UserMapper;
 import com.openclassrooms.backend.service.RentalService;
 import com.openclassrooms.backend.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 
@@ -45,6 +48,11 @@ public class RentalController {
   @Autowired
   private UserMapper userMapper;
 
+  @Operation(summary = "Get rental by id")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Rental found"),
+          @ApiResponse(responseCode = "404", description = "Rental not found")
+  })
   @GetMapping("/rentals/{id}")
   public ResponseEntity<RentalDTO> getRental(@PathVariable int id) {
 
@@ -52,6 +60,11 @@ public class RentalController {
     return ResponseEntity.ok(rentalDTO);
   }
 
+  @Operation(summary = "Get all rentals")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Rentals found"),
+          @ApiResponse(responseCode = "404", description = "No rental found")
+  })
   @GetMapping("/rentals")
   public ResponseEntity<RentalsResponseDTO> getRentals() {
 
@@ -61,8 +74,13 @@ public class RentalController {
     return ResponseEntity.ok(rentalsResponseDTO);
   }
 
+  @Operation(summary = "Get rental picture by id")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Rental picture found"),
+          @ApiResponse(responseCode = "404", description = "Rental picture not found")
+  })
   @GetMapping("/files/rentals/{param}")
-  public ResponseEntity<Resource> getMethodName(@PathVariable String param) throws IOException {
+  public ResponseEntity<Resource> getPicture(@PathVariable String param) throws IOException {
     Resource image = rentalService.getPicture(param);
     String contentType = Files.probeContentType(image.getFile().toPath());
     return ResponseEntity.ok()
@@ -70,7 +88,11 @@ public class RentalController {
         .body(image);
   }
   
-
+  @Operation(summary = "Create a new rental")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Rental created"),
+          @ApiResponse(responseCode = "400", description = "Bad request")
+  })
   @PostMapping("/rentals")
   public ResponseEntity<RentalDTO> createRental(@Valid @ModelAttribute CreateRentalDTO createRentalDTO) throws IOException {
 
@@ -81,6 +103,11 @@ public class RentalController {
 
   }
 
+  @Operation(summary = "Update a rental")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Rental updated"),
+          @ApiResponse(responseCode = "400", description = "Bad request")
+  })
   @PutMapping("/rentals/{id}")
   public ResponseEntity<RentalDTO> updateRental(@PathVariable int id, @Valid @ModelAttribute UpdateRentalDTO updateRentalDTO) {
 
