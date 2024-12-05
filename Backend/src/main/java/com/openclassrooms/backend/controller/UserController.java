@@ -74,7 +74,7 @@ public class UserController {
           @ApiResponse(responseCode = "400", description = "Bad request")
   })
   @PostMapping("/auth/login")
-  public ResponseEntity<?> login(
+  public ResponseEntity<TokenResponseDTO> login(
           @Valid @RequestBody LoginRequestDTO loginRequestDTO) {
 
       String jwtToken = userService.login(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());

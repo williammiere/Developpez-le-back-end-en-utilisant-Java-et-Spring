@@ -46,7 +46,7 @@ public class UserService {
         .password(user.getPassword())
         .build();
 
-    return jwtService.generateToken(userDetails);
+    return jwtService.generateToken(userDetails.getUsername());
   }
 
   public String login(String email, String password) {
@@ -61,7 +61,7 @@ public class UserService {
         .password(user.getPassword())
         .build();
 
-    return jwtService.generateToken(userDetails);
+    return jwtService.generateToken(userDetails.getUsername());
   }
 
   public User save(User user) {
