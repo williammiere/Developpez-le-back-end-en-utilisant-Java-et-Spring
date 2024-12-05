@@ -41,7 +41,7 @@ public class UserService {
 
     userRepository.save(user);
 
-    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder() // Makes the user connected to the eyes of Spring Security
         .username(email)
         .password(user.getPassword())
         .build();

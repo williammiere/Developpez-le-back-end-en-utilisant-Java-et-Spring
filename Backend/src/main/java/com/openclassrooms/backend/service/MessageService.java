@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.openclassrooms.backend.model.Message;
 import com.openclassrooms.backend.model.Rental;
 import com.openclassrooms.backend.model.User;
@@ -23,7 +24,7 @@ public class MessageService {
 
   public Message createMessage(int rentalId, int userId, String message) {
     Rental rental = rentalService.findById(rentalId);
-    User user =userService.findById(userId);
+    User user = userService.findById(userId);
 
     Message newMessage = new Message();
     newMessage.setRental_id(rental);

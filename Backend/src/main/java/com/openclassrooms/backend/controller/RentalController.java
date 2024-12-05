@@ -106,7 +106,8 @@ public class RentalController {
   @Operation(summary = "Update a rental")
   @ApiResponses(value = {
           @ApiResponse(responseCode = "200", description = "Rental updated"),
-          @ApiResponse(responseCode = "400", description = "Bad request")
+          @ApiResponse(responseCode = "400", description = "Bad request"),
+          @ApiResponse(responseCode = "404", description = "Rental not found")
   })
   @PutMapping("/rentals/{id}")
   public ResponseEntity<RentalDTO> updateRental(@PathVariable int id, @Valid @ModelAttribute UpdateRentalDTO updateRentalDTO) {

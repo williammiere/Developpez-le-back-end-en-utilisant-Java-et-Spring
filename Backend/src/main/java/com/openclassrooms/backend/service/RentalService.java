@@ -57,19 +57,19 @@ public class RentalService {
 
     public String savePicture(MultipartFile picture) throws IOException {
         Path destination = Paths.get(picsUploadPath);
-        String generatedName = UUID.randomUUID().toString() + "-" + picture.getOriginalFilename();
+        String generatedName = UUID.randomUUID().toString() + "-" + picture.getOriginalFilename(); // Generates a unique name for the picture to avoid conflicts
 
         Files.createDirectories(destination);
 
         Path targetLocation = destination.resolve(generatedName);
-        Files.copy(picture.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(picture.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING); // Saves the picture in the destination folder
 
         return "api/files/rentals/" + generatedName;
     }
 
     public Resource getPicture(String fileName) throws MalformedURLException {
-        Path filePath = Paths.get(picsUploadPath).resolve(fileName).normalize();
-        Resource resource = new UrlResource(filePath.toUri());
+        Path filePath = Paths.get(picsUploadPath).resolve(fileName).normalize(); // Gets the path of the picture
+        Resource resource = new UrlResource(filePath.toUri()); // Creates a resource from the path
         if (resource.exists() && resource.isReadable()) {
             return resource;
         } else {

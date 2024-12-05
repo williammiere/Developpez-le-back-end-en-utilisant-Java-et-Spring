@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import jakarta.persistence.EntityNotFoundException;
 
+// This class handles the exceptions thrown by the application.
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -28,10 +29,10 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    protected ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = "Internal server error";
-        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    @ExceptionHandler(MalformedURLException.class)
+    protected ResponseEntity<Object> handleMalformedURLException(MalformedURLException ex, WebRequest request) {
+        String bodyOfResponse = "Malformed URL";
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(NullPointerException.class)
@@ -40,10 +41,10 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
-    @ExceptionHandler(MalformedURLException.class)
-    protected ResponseEntity<Object> handleMalformedURLException(MalformedURLException ex, WebRequest request) {
-        String bodyOfResponse = "Malformed URL";
-        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    @ExceptionHandler(RuntimeException.class)
+    protected ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
+        String bodyOfResponse = "Internal server error";
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
